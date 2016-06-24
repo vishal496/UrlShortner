@@ -26,12 +26,14 @@
                 @for($i=0;$i<$count;$i++)
                 <tr>
                 	<td>{{ $usersLink[$i]->url }}</td>
-					<td><a href="{{ URL::route('web', [$usersLink[$i]->hash])}}">http://localhost:8000/{{ $usersLink[$i]->hash }}</a></td>
-					<td><form action="{{ URL::route('web', [$usersLink[$i]->hash])}}" method="get">
-						
-  							<input type="submit" name="action" value="Enable"></input>
-  							<input type="submit" name="action" value="Disable"></input>
-						
+					<td><a href="{{ URL::route('web', [$usersLink[$i]->hash])}}">{{env('URL_PATH')}}/{{ $usersLink[$i]->hash }}</a></td>
+					<td><form action="{{ URL::route('state', [$usersLink[$i]->hash])}}" method="post">
+						<input type="hidden" name="_token" value="{{ csrf_token() }}">
+						@if ($usersLink[$i]->action == 1)
+  							<input type="submit" name="action" value="disable"></input>
+  						@else
+  							<input type="submit" name="action" value="enable"></input>
+						@endif
 						</form>
 					</td>
 					<td>{{ $usersLink[$i]->redirect }}</td>
@@ -40,7 +42,7 @@
 			</table>		
 		</div>
 	@else
-		@include('login');
+		redirect('/');
 	@endif
 @stop
 	

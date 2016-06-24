@@ -26,7 +26,7 @@ class LinksModel extends Model
     *
     *@return void
     */
-    public function makeLinkEntry($user_id, $getLink, $code)
+    public function makeLinkEntry($userId, $getLink, $code)
     {
     	$expiry = new DateTime;
         $expiry->modify('+30 day');
@@ -34,7 +34,7 @@ class LinksModel extends Model
         $entry = $this->database
     	         ->table('links')
     	         ->insert([
-    	         		'user_id'=>$user_id,
+    	         		'user_id'=>$userId,
     	         		'url'=>$getLink,
                         'hash'=>$code,
     	         		'created_at'=>new DateTime,
@@ -52,14 +52,14 @@ class LinksModel extends Model
     *
     *@return Row from database
     */
-    public function getLinkDetail($user_id, $getLink)
+    public function getLinkDetail($userId, $getLink)
     {
     	$detail = $this->database
     	          ->select(
     	          	'SELECT * 
     	          	 FROM links 
     	          	 WHERE user_id = :user_id && url = :url', 
-    	          	 ['user_id' => $user_id, 'url' => $getLink]);
+    	          	 ['user_id' => $userId, 'url' => $getLink]);
 
     	return $detail;          
     }
