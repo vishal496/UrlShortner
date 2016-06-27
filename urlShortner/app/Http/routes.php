@@ -1,5 +1,4 @@
 <?php
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -11,24 +10,22 @@
 |
 */
 
-Route::get('/', function () {
-    return view('shortenpage');
-});
 
-Route::get('/signup', function () {
-    return view('register');
-});
+Route::get('/','LoginController@home');
 
-Route::get('/logout', function () {
-    Session::flush();
-    return redirect('/');
-});
+Route::post('home','LoginController@auth');
 
-Route::post('/make','LinkController@make');
+Route::get('/logout','LoginController@signout');
 
-Route::post('login','LoginController@auth');
+Route::post('/make','LinkController@createCode');
 
-Route::post('/register','RegisterController@register');
+Route::post('/register','LoginController@register');
 
-Route::get('/{hash}',['as'=>'web','uses'=>'LinkController@get']);
+Route::get('/signup','LoginController@registerView');
+
+Route::get('/{hash}',['as'=>'web','uses'=>'LinkController@redirect']);
+
+Route::post('/{hash}',['as'=>'state','uses'=>'LinkController@action']);
+
+Route::get('/page','LoginController@paginatedView');
 ?>

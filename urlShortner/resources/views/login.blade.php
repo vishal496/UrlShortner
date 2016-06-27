@@ -7,7 +7,7 @@
 @section('container')
 	<div class="container">
     	<h3> SIGN IN to use URL SHORTNER </h3>
-		{{ Form::open(['url'=>'/login']) }}
+		{{ Form::open(['url'=>'/home']) }}
 		<p><input type="email" name="email" placeholder="Your Email" required /></p>
 
     	<p><input type="password" name="pass" placeholder="Your Password" required /></p>

@@ -1,83 +1,114 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Url\Http\Controllers;
 
-use App\LinksModel;
-
-use App\Http\Requests;
-
+use Url\Common;
+use Url\Http\Requests;
+use Url\Models\LinksModel;
 use Illuminate\Http\Request;
 
 class LinkController extends Controller
 {
-    protected $url;
+    protected $request;
     protected $linkTable;
+    protected $commonFunction;
 
-    function __construct(Request $request, LinksModel $links)
+    function __construct(Request $request, LinksModel $links, Common $common)
     {
-    	$this->url = $request;
+    	$this->request = $request;
     	$this->linkTable = $links;
+        $this->commonFunction = $common;
     }
 
-    /*
-    *Making entry in the database and check whether the hash
-    *of particular url already exists in database
-    *
-    *@param type--name--description
-    *
-    *return Illuminate\Http\Response
-    */
-    public function make()
+    /**
+     * Making entry in the database and check whether the hash
+     * of particular url already exists in database
+     *
+     * @return Illuminate\Http\Response
+     */
+    public function createCode()
     {
-    	$getLink = $this->url->input('url');
-    	$user_id = session('id');
+    	$getLink = $this->request->input('url');
+    	$userId = session('id');
             	
-    	$usersLink = $this->linkTable->getLinkDetail($user_id, $getLink);
+    	$usersLink = $this->linkTable->getLinkDetail($userId, $getLink);
     	$count = count($usersLink);
     	if ($count == 0){
-            $hash = md5($getLink);
-            $code = $user_id."-".substr($hash, 0,6);
-    		$this->linkTable->makeLinkEntry($user_id, $getLink, $code);
-    		$usersLink = $this->linkTable->getUserLinks($user_id);
-            $count = count($usersLink);
-                
-            return view('shortenpage',compact('usersLink','count'));  
+            $hash = $this->commonFunction->generateHash($getLink);
+            $code = $userId."-".substr($hash, 0,6);
+    		$this->linkTable->makeLinkEntry($userId, $getLink, $code);
+    		$usersLink = $this->linkTable->getUserLinks($userId);
+            $total = count($usersLink);
 
-    	}else {
-    		return view('shortenpage',compact('usersLink','count'));
+            $limit = 10;
+            $page = 0;
+            $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+            $start = 0;
+            $usersPerPageLink = $this->getUserLinks->getUsersPerPageLink($userId, $start, $limit);
+
+            $count = count($usersPerPageLink);
+            return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
+
     	}
-
+    	return view('shortenpage',compact('usersLink','count'));
     }
 
-    /*
-    *Used for redirection and activating and deactivating
-    *a hash
-    *
-    *@param string--hash--hashed code of the url
-    *
-    *@return Redirect
-    */
-    public function get($hash)
+    /**
+     * Used for redirection and activating and deactivating
+     * a hash
+     *
+     * @param string  $hash
+     *
+     * @return Redirect
+     */
+    public function redirect($hash)
     {
-    	$action = $this->url->input('action');
+        $getUrl = $this->linkTable->getUrlOfHash($hash);
+        if($getUrl['0']->action == 0) {
+            echo '<script language="javascript">';
+            echo 'alert("Disabled")';
+            echo '</script>';
+            exit;
+        }
+        $redirect = $this->linkTable->updateRedirect($hash);
+        return redirect($getUrl['0']->url);
+    }
+
+    /**
+    * Change the state of link i.e. enable or disable
+    *
+    * @param string  $hash
+    *
+    * @return Illuminate\Http\Response
+    */
+    public function action($hash)
+    {
+        $action = $this->request->input('action');
         if(isset($action)){
            switch ($action) {
-                case 'Enable':
-                    $value = 0;
+                case 'enable':
+                    $value = 1;
                     break;
                 
-                case 'Disable':
-                    $value = 1;
+                case 'disable':
+                    $value = 0;
                     break;
             }
             $this->linkTable->updateAction($hash, $value); 
         }
-        $getUrl = $this->linkTable->getUrlOfHash($hash);
-        if($getUrl['0']->action == 1) {
-            echo "disabled";
-        }else{
-            $redirect = $this->linkTable->updateRedirect($hash);
-            return redirect($getUrl['0']->url);
-        }
+        $usersLink = $this->linkTable->getUserLinks(session('id'));
+        $total = count($usersLink);
+
+            $limit = 10;
+            $page = 0;
+            $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+            $start = 0;
+            $usersPerPageLink = $this->linkTable->getUsersPerPageLink(session('id'), $start, $limit);
+            $count = count($usersPerPageLink);
+             
+            return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
+
     }
 }
