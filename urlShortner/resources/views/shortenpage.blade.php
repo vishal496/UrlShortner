@@ -7,6 +7,7 @@
 
 @section('container')
     @if (Session::has('id'))
+    	<a href="/logout">Logout</a>
 		<div class="container">
 			<h3> WELCOME {{ session('name') }}</h3>
 			<h1 class="title"> Shorten a URL </h1>
@@ -14,7 +15,6 @@
 			<input type="url" name="url" placeholder="Enter a Url" autocomplete="off">
 			<input type="submit" value="SHORTEN">			
 			{{ Form::close()}}
-			<a href="/logout">Logout</a>
 			<hr />
 			<table style="width:100%">
 				<tr>
@@ -25,24 +25,27 @@
 				</tr>
                 @for($i=0;$i<$count;$i++)
                 <tr>
-                	<td>{{ $usersLink[$i]->url }}</td>
-					<td><a href="{{ URL::route('web', [$usersLink[$i]->hash])}}">{{env('URL_PATH')}}/{{ $usersLink[$i]->hash }}</a></td>
-					<td><form action="{{ URL::route('state', [$usersLink[$i]->hash])}}" method="post">
+                	<td>{{ $usersPerPageLink[$i]->url }}</td>
+					<td><a href="{{ URL::route('web', [$usersPerPageLink[$i]->hash])}}">{{env('URL_PATH')}}/{{ $usersPerPageLink[$i]->hash }}</a></td>
+					<td><form action="{{ URL::route('state', [$usersPerPageLink[$i]->hash])}}" method="post">
 						<input type="hidden" name="_token" value="{{ csrf_token() }}">
-						@if ($usersLink[$i]->action == 1)
+						@if ($usersPerPageLink[$i]->action == 1)
   							<input type="submit" name="action" value="disable"></input>
   						@else
   							<input type="submit" name="action" value="enable"></input>
 						@endif
 						</form>
 					</td>
-					<td>{{ $usersLink[$i]->redirect }}</td>
+					<td>{{ $usersPerPageLink[$i]->redirect }}</td>
 				</tr>
 				@endfor
-			</table>		
+			</table>
+			<?php echo $paginate; ?>		
 		</div>
 	@else
 		redirect('/');
 	@endif
 @stop
+
+
 	

@@ -57,8 +57,8 @@ class LinksModel extends Model
                   ->select('url','hash','redirect','action')
     	          ->where(
                         [
-                            ['user_id',$userId],
-                            ['url',$getLink]
+                            'user_id' => $userId,
+                            'url' => $getLink
                         ]
                     )
                    ->get();
@@ -80,10 +80,22 @@ class LinksModel extends Model
     	          	  ->select('url','hash','redirect','action')
                       ->where('user_id',$userId)
                       ->get();
-    	          	            	  
 
     	return $linkDetail;          	  
 	}
+
+    public function getUsersPerPageLink($userId, $start, $limit)
+    {
+        $linkDetail = $this->database
+                      ->table('links')
+                      ->select('url','hash','redirect','action')
+                      ->where('user_id',$userId)
+                      ->skip($start)
+                      ->take($limit)
+                      ->get();
+                      
+        return $linkDetail;
+    }
 
    /**
     * Gets the url and action related to the hash

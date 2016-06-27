@@ -37,21 +37,24 @@ class LoginController extends Controller
 
     	if (count($info) == 1) {
             $this->commonFunction->setSession($info['0']->id, $info['0']->user_name); 
-        } else {
-            echo '<script language="javascript">';
-            echo 'alert("Username/Password does not match.")';
-            echo '</script>';
-;
-            return view('login');
-        }
-        
-        if(count(session('id'))) {
             $userId = $info['0']->id;
             $usersLink = $this->getUserLinks->getUserLinks($userId);
-            $count = count($usersLink);
-    	    	
-    	    return view('shortenpage',compact('usersLink','count'));  
-        }
+            $total = count($usersLink);
+
+            $limit = 10;
+            $page = 0;
+            $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+            $start = 0;
+            $usersPerPageLink = $this->getUserLinks->getUsersPerPageLink($userId, $start, $limit);
+            $count = count($usersPerPageLink);    
+            return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
+        } 
+        echo '<script language="javascript">';
+        echo 'alert("Username/Password does not match.")';
+        echo '</script>';
+
+        return view('login');    
     }
 
     /**
@@ -105,5 +108,24 @@ class LoginController extends Controller
     public function home()
     {
         return view('login');
+    }
+
+    public function paginatedView()
+    {
+        echo 1;
+        exit;
+        $page = $this->loginEntry->input('page');
+        echo $page;
+        
+        $limit = 10;
+        $start = ($page - 1);
+        $usersLink = $this->getUserLinks->getUserLinks(session('id'));
+        $total = count($usersLink);
+        $limit = 10;
+        $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+        $usersPerPageLink = $this->getUserLinks->getUsersPerPageLink($userId, $start, $limit);
+        $count = count($usersPerPageLink);    
+        return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
     }
 }

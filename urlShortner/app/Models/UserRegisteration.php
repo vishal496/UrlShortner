@@ -52,8 +52,8 @@ class UserRegisteration extends Model
                   ->select('id','user_name')
                   ->where(
                         [
-                            ['email',$email],
-                            ['password',$password]
+                            'email' => $email,
+                            'password' => $password
                         ]
                     )
                   ->get();

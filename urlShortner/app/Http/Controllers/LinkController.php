@@ -38,9 +38,17 @@ class LinkController extends Controller
             $code = $userId."-".substr($hash, 0,6);
     		$this->linkTable->makeLinkEntry($userId, $getLink, $code);
     		$usersLink = $this->linkTable->getUserLinks($userId);
-            $count = count($usersLink);
-                
-            return view('shortenpage',compact('usersLink','count'));  
+            $total = count($usersLink);
+
+            $limit = 10;
+            $page = 0;
+            $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+            $start = 0;
+            $usersPerPageLink = $this->getUserLinks->getUsersPerPageLink($userId, $start, $limit);
+
+            $count = count($usersPerPageLink);
+            return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
 
     	}
     	return view('shortenpage',compact('usersLink','count'));
@@ -90,9 +98,17 @@ class LinkController extends Controller
             $this->linkTable->updateAction($hash, $value); 
         }
         $usersLink = $this->linkTable->getUserLinks(session('id'));
-        $count = count($usersLink);
-                
-        return view('shortenpage',compact('usersLink','count'));  
+        $total = count($usersLink);
+
+            $limit = 10;
+            $page = 0;
+            $paginate = $this->commonFunction->paginate($total, $limit, $page);
+
+            $start = 0;
+            $usersPerPageLink = $this->linkTable->getUsersPerPageLink(session('id'), $start, $limit);
+            $count = count($usersPerPageLink);
+             
+            return view('shortenpage',compact('usersPerPageLink','count','paginate'));  
 
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -27,4 +26,6 @@ Route::get('/signup','LoginController@registerView');
 Route::get('/{hash}',['as'=>'web','uses'=>'LinkController@redirect']);
 
 Route::post('/{hash}',['as'=>'state','uses'=>'LinkController@action']);
+
+Route::get('/page','LoginController@paginatedView');
 ?>
